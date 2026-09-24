@@ -105,7 +105,7 @@ The repository uses a single solution file:
    - Android implementation with GLSurfaceView and touch input
 
 4. **Miko.iOS** (`src/Miko.iOS/`)
-   - iOS implementation with GLKView and touch input
+   - iOS implementation with a Metal `MTKView` (`MikoMetalView`) and touch input
 
 5. **Miko.Simulator** (`src/Miko.Simulator/`)
    - Device simulator host for previewing mobile apps on desktop

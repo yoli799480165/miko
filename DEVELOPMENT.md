@@ -135,7 +135,7 @@ miko-v5/
 │   ├── MikoSurfaceView.cs             # GLSurfaceView + 触摸输入
 │   └── MikoAndroidApp.cs              # CreateView() 便捷入口
 ├── src/Miko.iOS/                      # iOS 实现
-│   ├── MikoGLView.cs                  # GLKView + 触摸输入
+│   ├── MikoMetalView.cs               # MTKView（Metal）+ 触摸输入
 │   └── MikoViewController.cs          # 视图控制器（CADisplayLink 渲染循环）
 ├── src/Miko.Simulator/                # 设备模拟器宿主
 │   └── SimulatorHost.cs               # 在桌面预览移动应用（设备画布 + 设置面板）
