@@ -444,6 +444,7 @@ internal static class GlobalStyles
             [".floating-player-actions"] = new()
             {
                 Position = Position.Fixed,
+                PointerEvents = PointerEvents.Auto,
                 Top = Length.Px(55),
                 Right = Length.Px(10),
                 Display = Display.Flex,

@@ -89,6 +89,14 @@ Razor components  ─►  Miko source generator  ─►  native SkiaSharp render
 - A platform supported by SkiaSharp (Windows, macOS, Linux, Android, iOS, or a modern browser)
 - For browser apps: `dotnet workload install wasm-tools`
 
+HarmonyOS API 15+ is available through the initial `Miko.HarmonyOS` host. Its application heads
+target `net11.0-ohos` using the released HarmonyOS workload and packages `11.0.0`.
+Install the workload in a standalone .NET 11 SDK to build those heads. Miko contains C# adapters; the reusable
+`OpenHarmony.Framework` owns the native host, Stage shell and media/surface APIs. See the
+[IonicDemo HarmonyOS build guide](examples/Ionic/IonicDemo.HarmonyOS/README.md) and
+[Anime video example](examples/App/Anime/Anime.HarmonyOS/README.md). The
+[validation notes](docs/ISSUE-170-validation.md) cover setup, emulator results and current scope.
+
 ### Create an app from the template
 
 The fastest way to start is the Razor app template:

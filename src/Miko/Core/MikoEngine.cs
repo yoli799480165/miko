@@ -1911,6 +1911,10 @@ public partial class MikoEngine
             case VideoSessionEvent.Buffering:
                 PostInvalidate(video);
                 break;
+
+            case VideoSessionEvent.StateChanged:
+                PostInvalidate(video);
+                break;
         }
     }
 

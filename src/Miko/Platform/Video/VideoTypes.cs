@@ -86,6 +86,8 @@ public enum VideoSessionState
 public abstract record VideoSessionEvent
 {
     public sealed record Buffering(bool IsBuffering) : VideoSessionEvent;
+    /// <summary>The backend playback state changed.</summary>
+    public sealed record StateChanged : VideoSessionEvent;
     /// <summary>媒体已加载，已知内禀尺寸与时长。引擎据此写入元素内禀尺寸并触发重排。</summary>
     public sealed record Loaded(int Width, int Height, TimeSpan Duration) : VideoSessionEvent;
 

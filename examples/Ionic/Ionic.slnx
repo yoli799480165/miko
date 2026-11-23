@@ -11,6 +11,7 @@
   </Folder>
   <Project Path="IonicComponents/IonicComponents.csproj" />
   <Project Path="IonicDemo.Android/IonicDemo.Android.csproj" />
+  <Project Path="IonicDemo.HarmonyOS/IonicDemo.HarmonyOS.csproj" />
   <Project Path="IonicDemo.Desktop/IonicDemo.Desktop.csproj" />
   <Project Path="IonicDemo.Simulator/IonicDemo.Simulator.csproj" />
   <Project Path="IonicDemo.iOS/IonicDemo.iOS.csproj" />

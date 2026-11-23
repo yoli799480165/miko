@@ -20,6 +20,9 @@ public enum HostPlatform
 
     /// <summary>A browser running the WebAssembly host.</summary>
     Browser,
+
+    /// <summary>Huawei HarmonyOS / OpenHarmony.</summary>
+    HarmonyOS,
 }
 
 /// <summary>

@@ -1480,19 +1480,20 @@ public class RenderEngine
                 if (video.SourceRegion is { } crop && _canvas != null)
                 {
                     var dst = FitContain(frame.Width * crop.Width, frame.Height * crop.Height, content);
+                    var imageDst = new RectF(dst.X - crop.X * dst.Width / crop.Width,
+                        dst.Y - crop.Y * dst.Height / crop.Height, dst.Width / crop.Width, dst.Height / crop.Height);
                     _canvas.Save();
                     try
                     {
                         _canvas.ClipRect(dst.ToSKRect());
-                        _painter.DrawImage(frame, new RectF(dst.X - crop.X * dst.Width / crop.Width,
-                            dst.Y - crop.Y * dst.Height / crop.Height, dst.Width / crop.Width, dst.Height / crop.Height));
+                        DrawVideoImage(frame, imageDst, video.Session!.FrameSource.FlipVertically);
                     }
                     finally { _canvas.Restore(); }
                 }
                 else
                 {
                     var dst = FitContain(frame.Width, frame.Height, content);
-                    _painter.DrawImage(frame, dst);
+                    DrawVideoImage(frame, dst, video.Session!.FrameSource.FlipVertically);
                 }
             }
             finally
@@ -1508,6 +1509,25 @@ public class RenderEngine
             var dst = FitContain(video.PosterBitmap.Width, video.PosterBitmap.Height, content);
             _painter.DrawImage(video.PosterBitmap, dst);
         }
+    }
+
+    private void DrawVideoImage(Image frame, RectF destination, bool flipVertically)
+    {
+        if (!flipVertically || _canvas == null)
+        {
+            _painter!.DrawImage(frame, destination);
+            return;
+        }
+
+        _canvas.Save();
+        try
+        {
+            _canvas.Translate(destination.X + destination.Width / 2, destination.Y + destination.Height / 2);
+            _canvas.Scale(1, -1);
+            _painter!.DrawImage(frame, new RectF(-destination.Width / 2, -destination.Height / 2,
+                destination.Width, destination.Height));
+        }
+        finally { _canvas.Restore(); }
     }
 
     /// <summary>

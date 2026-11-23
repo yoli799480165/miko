@@ -199,6 +199,37 @@ public class VideoSessionLifecycleTests : IDisposable
         engine.DisposeVideoSessions();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Should_orient_video_frames_before_applying_source_crop(bool flipVertically)
+    {
+        var backend = new FakeVideoBackend();
+        var engine = new MikoEngineBuilder().Build();
+        engine.VideoBackend = backend;
+        var video = new VideoElement { Source = "oriented.mp4", Style = new Style { Width = Length.Px(100), Height = Length.Px(100) } };
+        engine.Initialize(new DivElement { Children = { video } }, VideoSheet(), _canvas, 800, 600);
+        byte[] pixels = new byte[8 * 8 * 4];
+        for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
+        {
+            int i = (y * 8 + x) * 4;
+            pixels[i + (y < 4 ? 0 : 2)] = 255;
+            pixels[i + 3] = 255;
+        }
+        using var image = engine.Graphics.CreateImage(8, 8, ImagePixelFormat.Rgba8888, pixels)!;
+        var frames = (FakeFrameSource)backend.CreatedSessions[0].FrameSource;
+        frames.Image = image;
+        frames.FlipVertically = flipVertically;
+        engine.RequestRepaint(); engine.Render(_canvas);
+        _bitmap.GetPixel(50, 10).ShouldBe(flipVertically ? SKColors.Blue : SKColors.Red);
+        _bitmap.GetPixel(50, 90).ShouldBe(flipVertically ? SKColors.Red : SKColors.Blue);
+        video.SourceRegion = new RectF(0, 0, 1, .5f);
+        engine.RequestRepaint(); engine.Render(_canvas);
+        _bitmap.GetPixel(50, 50).ShouldBe(flipVertically ? SKColors.Blue : SKColors.Red);
+        image.Width.ShouldBe(8);
+        engine.DisposeVideoSessions();
+    }
+
     // ---- fakes -------------------------------------------------------------
 
     private sealed class FakeVideoBackend : IVideoBackend
@@ -246,6 +277,7 @@ public class VideoSessionLifecycleTests : IDisposable
 
     private sealed class FakeFrameSource : IVideoFrameSource
     {
+        public bool FlipVertically { get; set; }
         public Image? Image { get; set; }
         public int ReleaseCount { get; private set; }
         public Image? AcquireCurrentFrame(GraphicsDevice device) => Image;

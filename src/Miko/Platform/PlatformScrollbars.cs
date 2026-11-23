@@ -18,7 +18,7 @@ public static class PlatformScrollbars
     public static ScrollbarStyle GetDefault(HostPlatform platform) => platform switch
     {
         HostPlatform.MacOS or HostPlatform.Browser => ScrollbarStyle.Overlay,
-        HostPlatform.Ios or HostPlatform.Android => ScrollbarStyle.None,
+        HostPlatform.Ios or HostPlatform.Android or HostPlatform.HarmonyOS => ScrollbarStyle.None,
         _ => ScrollbarStyle.Classic,
     };
 }

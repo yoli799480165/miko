@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net11.0-ohos</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OpenHarmonyPackageVersion>11.0.0</OpenHarmonyPackageVersion>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <OpenHarmonySurface>true</OpenHarmonySurface>
+    <OpenHarmonyBundleName>org.miko.anime</OpenHarmonyBundleName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../../src/Miko.HarmonyOS/Miko.HarmonyOS.csproj" />
+    <ProjectReference Include="../Anime/Anime.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Chaldea.SkiaSharp.NativeAssets.HarmonyOS" Version="$(OpenHarmonyPackageVersion)" />
+    <PackageReference Include="Chaldea.HarfBuzzSharp.NativeAssets.HarmonyOS" Version="$(OpenHarmonyPackageVersion)" />
+  </ItemGroup>
+</Project>

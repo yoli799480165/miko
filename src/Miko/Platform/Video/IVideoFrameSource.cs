@@ -14,6 +14,9 @@ namespace Miko.Platform.Video;
 /// </summary>
 public interface IVideoFrameSource
 {
+    /// <summary>Whether the frame's texture coordinates are vertically inverted.</summary>
+    bool FlipVertically => false;
+
     /// <summary>
     /// 获取当前帧。返回的图像由帧源拥有并管理生命周期，调用方不得释放。
     /// 尚无可用帧时（首帧前 / seek 中）返回 <c>null</c>，由上层回退到 poster 或背景。
