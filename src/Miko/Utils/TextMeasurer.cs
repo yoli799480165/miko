@@ -131,15 +131,6 @@ public static class TextMeasurer
         var fontManager = FontManager.Instance;
         var typeface = fontManager.GetTypeface(fontFamily, fontWeight);
 
-        if (typeface == null)
-        {
-            typeface = SKTypeface.FromFamilyName(
-                fontFamily,
-                (SKFontStyleWeight)(int)fontWeight,
-                SKFontStyleWidth.Normal,
-                SKFontStyleSlant.Upright);
-        }
-
         var font = Rendering.Painter.CreateHighQualityFont(typeface, fontSize);
 
         var metrics = font.Metrics;

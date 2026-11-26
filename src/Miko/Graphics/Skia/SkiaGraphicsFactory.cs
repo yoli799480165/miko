@@ -26,8 +26,7 @@ internal sealed class SkiaGraphicsFactory : IGraphicsFactory
 
         var shaped = TextShaping.Shape(text, style.FontFamily, style.FontSize, style.FontWeight, style.Direction, style.LetterSpacing);
         var typeface = shaped.BaselineTypeface
-            ?? FontManager.Instance.GetTypeface(style.FontFamily, style.FontWeight)
-            ?? SKTypeface.Default;
+            ?? FontManager.Instance.GetTypeface(style.FontFamily, style.FontWeight);
         var metrics = Painter.CreateHighQualityFont(typeface, style.FontSize).Metrics;
         return new TextBlock(text, style, shaped, -metrics.Ascent, metrics.Descent);
     }

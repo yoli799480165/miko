@@ -1,5 +1,6 @@
 using Miko.Common;
 using Miko.Fonts;
+using Miko.Utils;
 using Shouldly;
 
 namespace Miko.Tests.Fonts;
@@ -15,6 +16,27 @@ public class FontFallbackResolverTests : IDisposable
     public void Dispose()
     {
         FontManager.ResetInstance();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void MissingFamily_UsesTextFallbackForDigitsAndLineMetrics(bool explicitFallback)
+    {
+        const string digits = "0123456789";
+        const string fallback = "Digit Test Font";
+        const FontWeight weight = FontWeight.Normal;
+        var fonts = FontManager.Instance;
+        fonts.RegisterFont(fallback, Path.Combine(AppContext.BaseDirectory, "TestAssets", "Fonts", "Noto", "NotoSansArabic-Subset.ttf"));
+        var requestedFamily = explicitFallback ? $"Miko Missing Family, '{fallback}'" : "Miko Missing Family";
+        if (!explicitFallback) fonts.DefaultFallbackChain.Insert(0, fallback);
+
+        var run = new FontFallbackResolver(fonts).ResolveTextRuns(digits, requestedFamily, weight).ShouldHaveSingleItem();
+        run.Typeface.ShouldBeSameAs(fonts.GetTypeface(fallback, weight));
+        TextMeasurer.MeasureTextWidth(digits, requestedFamily, 16, weight)
+            .ShouldBe(TextMeasurer.MeasureTextWidth(digits, fallback, 16, weight));
+        TextMeasurer.MeasureTextHeight(requestedFamily, 16, weight)
+            .ShouldBe(TextMeasurer.MeasureTextHeight(fallback, 16, weight));
     }
 
     [Fact]

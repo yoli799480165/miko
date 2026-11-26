@@ -158,7 +158,7 @@ public class FontFallbackResolver
         // Try each font in the fallback chain
         foreach (var familyName in fallbackChain)
         {
-            var typeface = _fontManager.GetTypeface(familyName, weight);
+            var typeface = _fontManager.MatchTypeface(familyName, weight);
             if (typeface != null && FontManager.ContainsGlyph(typeface, character))
             {
                 return typeface;
@@ -168,7 +168,7 @@ public class FontFallbackResolver
         // Try default fallback chain
         foreach (var familyName in _fontManager.DefaultFallbackChain)
         {
-            var typeface = _fontManager.GetTypeface(familyName, weight);
+            var typeface = _fontManager.MatchTypeface(familyName, weight);
             if (typeface != null && FontManager.ContainsGlyph(typeface, character))
             {
                 return typeface;
@@ -198,7 +198,10 @@ public class FontFallbackResolver
             return matched;
         }
 
-        // Return first available typeface as last resort
+        // Some backends cannot match by code point but their default face covers emoji.
+        if (FontManager.ContainsGlyph(SKTypeface.Default, character)) return SKTypeface.Default;
+
+        // Use the primary face's missing-glyph box as a last resort.
         return _fontManager.GetTypeface(fallbackChain.FirstOrDefault() ?? "Arial", weight);
     }
 
@@ -303,11 +306,7 @@ public class FontFallbackResolver
 
         foreach (var fontName in fallbackFonts)
         {
-            var typeface = _fontManager.GetTypeface(fontName, weight);
-            // 必须校验字形：SKTypeface.FromFamilyName 在字体名不存在时会静默返回系统默认
-            // 字体（如 macOS 上的 Helvetica），不校验就会把不含该字形的默认字体当成
-            // "系统回退"返回，后面的 PingFang SC 等真实可用字体永远轮不到（macOS CI 上
-            // 中文全部按 .notdef 宽度测量的根因，ISSUE-110 后续修复）。
+            var typeface = _fontManager.MatchTypeface(fontName, weight);
             if (typeface != null && FontManager.ContainsGlyph(typeface, character))
             {
                 return typeface;

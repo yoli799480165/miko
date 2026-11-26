@@ -45,7 +45,7 @@ public class FontManager : IDisposable
     }
 
     private readonly ConcurrentDictionary<string, List<RegisteredFont>> _fontFamilies = new(StringComparer.OrdinalIgnoreCase);
-    private readonly ConcurrentDictionary<string, SKTypeface> _typefaceCache = new();
+    private readonly ConcurrentDictionary<string, SKTypeface?> _typefaceCache = new();
     // 字形包含查询缓存：typeface 在 FontManager 内长生命周期、引用稳定，可安全作为 key。
     private static readonly ConcurrentDictionary<(SKTypeface Typeface, int Codepoint), bool> _glyphCache = new();
     private readonly Woff2Decoder _woff2Decoder = new();
@@ -138,9 +138,18 @@ public class FontManager : IDisposable
     }
 
     /// <summary>
-    /// Get typeface for a font family with specified weight and style
+    /// Resolve the primary face for line metrics, including CSS family lists and platform fallbacks.
     /// </summary>
-    internal SKTypeface? GetTypeface(string fontFamily, FontWeight weight, SKFontStyleSlant slant = SKFontStyleSlant.Upright)
+    internal SKTypeface GetTypeface(string fontFamily, FontWeight weight, SKFontStyleSlant slant = SKFontStyleSlant.Upright)
+    {
+        foreach (var family in ParseFontFamilyChain(fontFamily).Concat(DefaultFallbackChain))
+        {
+            if (MatchTypeface(family, weight, slant) is { } face) return face;
+        }
+        return SKTypeface.Default;
+    }
+
+    internal SKTypeface? MatchTypeface(string fontFamily, FontWeight weight, SKFontStyleSlant slant = SKFontStyleSlant.Upright)
     {
         var cacheKey = $"{fontFamily}|{(int)weight}|{slant}";
 
@@ -165,18 +174,15 @@ public class FontManager : IDisposable
             }
         }
 
-        // Fall back to system font
-        typeface ??= SKTypeface.FromFamilyName(
-            fontFamily,
-            (SKFontStyleWeight)(int)weight,
-            SKFontStyleWidth.Normal,
-            slant);
-
-        if (typeface != null)
+        if (typeface == null)
         {
-            _typefaceCache[cacheKey] = typeface;
+            // FromFamilyName substitutes SKTypeface.Default on a miss. On HarmonyOS that
+            // can be an emoji font with digit glyphs, which would stop CSS fallback early.
+            using var style = new SKFontStyle((int)weight, (int)SKFontStyleWidth.Normal, slant);
+            typeface = SKFontManager.Default.MatchFamily(fontFamily, style);
         }
 
+        _typefaceCache[cacheKey] = typeface;
         return typeface;
     }
 
@@ -184,45 +190,7 @@ public class FontManager : IDisposable
     /// Get typeface for rendering a specific character with fallback support
     /// </summary>
     internal SKTypeface? GetTypefaceForCharacter(char character, string fontFamily, FontWeight weight)
-    {
-        var families = ParseFontFamilyChain(fontFamily);
-
-        foreach (var family in families)
-        {
-            var typeface = GetTypeface(family, weight);
-            if (typeface != null && ContainsGlyph(typeface, character))
-            {
-                return typeface;
-            }
-        }
-
-        // Try default fallback chain
-        foreach (var family in DefaultFallbackChain)
-        {
-            var typeface = GetTypeface(family, weight);
-            if (typeface != null && ContainsGlyph(typeface, character))
-            {
-                return typeface;
-            }
-        }
-
-        // 让操作系统字体管理器按码点匹配字体（跨平台兜底，与 FontFallbackResolver 一致）：
-        // 硬编码回退链以 Windows 字体名为主，macOS / Linux 上可能都不中。
-        var matched = SKFontManager.Default.MatchCharacter(
-            null,
-            (SKFontStyleWeight)(int)weight,
-            SKFontStyleWidth.Normal,
-            SKFontStyleSlant.Upright,
-            null,
-            character);
-        if (matched != null)
-        {
-            return matched;
-        }
-
-        // Return default typeface even if it doesn't have the glyph
-        return GetTypeface(families.FirstOrDefault() ?? "Arial", weight);
-    }
+        => new FontFallbackResolver(this).ResolveFont(character, ParseFontFamilyChain(fontFamily), weight);
 
     /// <summary>
     /// Parse font family string into ordered list

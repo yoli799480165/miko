@@ -112,6 +112,7 @@ public sealed class HarmonyHost : IDisposable
             ("sans-serif", "/system/fonts/HarmonyOS_Sans.ttf"),
             ("system-ui", "/system/fonts/HarmonyOS_Sans.ttf"),
             ("monospace", "/system/fonts/RobotoMono-Regular.ttf"),
+            ("monospace", "/system/fonts/NotoSansMono[wdth,wght].ttf"),
             ("HarmonyOS Sans", "/system/fonts/HarmonyOS_Sans.ttf"),
             ("HarmonyOS Sans SC", "/system/fonts/HarmonyOS_Sans_SC.ttf") })
         {
