@@ -26,10 +26,16 @@ internal sealed class HarmonyOSVideoFrameSource(MediaPlayer player, EglContext c
             }
             if (player.VideoWidth > 0 && player.VideoHeight > 0 && _output.TryAcquireFrame(out var frame))
             {
-                FlipVertically = frame.TextureTransform.M22 < -.5f && frame.TextureTransform.M11 > .5f;
                 var image = device.WrapGlTexture(NativeImage.TextureTarget, frame.TextureId, 0x8058,
                     player.VideoWidth, player.VideoHeight, ImagePixelFormat.Rgbx8888);
-                if (image != null) { _image?.Dispose(); _image = image; }
+                if (image != null)
+                {
+                    // NativeImage maps GL texture coordinates from a bottom-left origin.
+                    // Skia wraps this texture with a top-left origin, reversing the Y convention.
+                    FlipVertically = frame.TextureTransform.M22 > 0;
+                    _image?.Dispose();
+                    _image = image;
+                }
             }
             return _image;
         }
